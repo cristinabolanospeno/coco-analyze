@@ -85,10 +85,10 @@ def backgroundFalsePosErrors( coco_analyze, imgs_info, saveDir ):
     f.write(" - Max height: [%d]\n"%max_height)
 
     ar_pic = np.zeros((int(max_height)+1,int(max_width)+1))
-    ar_pic_2 = np.zeros((30,30))
-    ar_bins = list(range(10))+list(range(10,100,10))+list(range(100,1000,100))+[1000]
-    ar_pic_3 = np.zeros((10,10))
-    ar_bins_3 = [np.power(2,x) for x in range(11)]
+    ar_pic_2 = np.zeros((40,40))
+    ar_bins = list(range(10))+list(range(10,100,10))+list(range(100,2000,100))+[2000]
+    ar_pic_3 = np.zeros((11,11))
+    ar_bins_3 = [np.power(2,x) for x in range(12)]
 
     areaRngs    = [[0, 32 ** 2],[32 ** 2, 64 ** 2],[64 ** 2, 96 ** 2],[96 ** 2, 128 ** 2],[128 ** 2, 1e5 ** 2]]
     areaRngLbls = ['small','medium','large','xlarge','xxlarge']
@@ -103,7 +103,7 @@ def backgroundFalsePosErrors( coco_analyze, imgs_info, saveDir ):
         t_height = int(t['bbox'][3])
         ar_pic[0:t_height,0:t_width] += 1
 
-        if t_width < 1024 and t_height < 1024:
+        if t_width < 2048 and t_height < 2048:
             col = [i for i in range(len(ar_bins)-1) if ar_bins[i]<t_width<ar_bins[i+1]]
             row = [i for i in range(len(ar_bins)-1) if ar_bins[i]<t_height<ar_bins[i+1]]
             ar_pic_2[row,col] += 1
@@ -112,7 +112,7 @@ def backgroundFalsePosErrors( coco_analyze, imgs_info, saveDir ):
             row = [i for i in range(len(ar_bins_3)-1) if ar_bins_3[i]<t_height<ar_bins_3[i+1]]
             ar_pic_3[row,col] += 1
         else:
-            print("False Positive bbox has a side larger than 1024 pixels.")
+            print("False Positive bbox has a side larger than 2048 pixels.")
             print("Change lists ar_bins_2 and ar_bins_3 to include larger bins.")
             assert(False)
 
@@ -181,8 +181,8 @@ def backgroundFalsePosErrors( coco_analyze, imgs_info, saveDir ):
 
     fig, ax = plt.subplots(figsize=(10,10))
     plt.imshow(ar_pic_3,origin='lower')
-    plt.xticks([-.5 + x for x in range(11)],["%d"%(x) for x in ar_bins_3])
-    plt.yticks([-.5 + x for x in range(11)],["%d"%(x) for x in ar_bins_3])
+    plt.xticks([-.5 + x for x in range(12)],["%d"%(x) for x in ar_bins_3])
+    plt.yticks([-.5 + x for x in range(12)],["%d"%(x) for x in ar_bins_3])
     plt.colorbar()
     plt.grid()
     plt.title('BBox Aspect Ratio',fontsize=20)
