@@ -1,5 +1,6 @@
 ## general imports
 import os, shutil, sys, json, datetime, jinja2
+from argparse import ArgumentParser
 from jinja2 import Template
 
 ## COCO imports
@@ -15,10 +16,7 @@ from analysisAPI.backgroundFalseNegErrors import backgroundFalseNegErrors
 from analysisAPI.occlusionAndCrowdingSensitivity import occlusionAndCrowdingSensitivity
 from analysisAPI.sizeSensitivity import sizeSensitivity
 
-def main():
-    if len(sys.argv) != 6:
-        raise ValueError("Please specify args: $> python run_analysis.py [annotations_path] [detections_path] [save_dir] [team_name] [version_name]")
-
+def main(annFile, resFile, saveDir, teamName, versionName):
     filepath = os.path.dirname(os.path.realpath(__file__)) + "/"
     latex_jinja_env = jinja2.Environment(
         block_start_string    = '\BLOCK{',
@@ -36,14 +34,10 @@ def main():
     template = latex_jinja_env.get_template('report_template.tex')
     template_vars  = {}
 
-    annFile   = sys.argv[1]; splitName = annFile.split("/")[-1]
-    resFile  = sys.argv[2]
+    splitName = annFile.split("/")[-1]
     print("{:10}[{}]\n{:10}[{}]".format('annFile:',annFile,'resFile:',resFile))
-    saveDir  = sys.argv[3]
     if not os.path.exists(saveDir):
         os.makedirs(saveDir)
-    teamName    = sys.argv[4]
-    versionName = sys.argv[5]
 
     ## create dictionary with all images info
     gt_data   = json.load(open(annFile,'r'))
@@ -127,4 +121,10 @@ def main():
     shutil.copyfile(filepath + 'latex/color_coding.pdf', os.path.join(saveDir, 'color_coding.pdf'))
 
 if __name__ == '__main__':
-    main()
+    p = ArgumentParser()
+    p.add_argument('annFile')
+    p.add_argument('dtsFile', dest='resFile')
+    p.add_argument('saveDir')
+    p.add_argument('teamName')
+    p.add_argument('version', dest='versionName')
+    main(**vars(p.parse_args()))
